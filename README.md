@@ -1,168 +1,72 @@
-# Foundry Cross Chain Rebase Token
+# Rebase ERC-20 Token (Foundry Setup)
 
-This is a section of the Cyfrin Foundry Solidity course.
+This project implements a simple **rebase ERC-20 token** with manual supply adjustments. The contract expands or contracts the token supply by **5% per rebase cycle**, controlled by the owner. The project is structured with **Foundry** for deployment and testing.
 
-# About
+## Features 🚀
 
-This project is a cross-chain rebase token where users can depost ETH in exchange for rebase tokens which accrue rewards over time.
+- **ERC-20 Token with Rebase Mechanism**
+- **Manual Rebase Control** (Increase or Decrease supply by 5%)
+- **Adjustable Rebase Interval** (Default: 1 day)
+- **Foundry Deployment & Test Scripts**
 
-- [Foundry Cross Chain Rebase Token](#foundry-cross-chain-rebase-token)
-- [About](#about)
-- [Getting Started](#getting-started)
-  - [Requirements](#requirements)
-  - [Quickstart](#quickstart)
-- [Updates](#updates)
-- [Usage](#usage)
-  - [Start a local node](#start-a-local-node)
-  - [Deploy](#deploy)
-  - [Deploy - Other Network](#deploy---other-network)
-  - [Testing](#testing)
-    - [Test Coverage](#test-coverage)
-- [Deployment to a testnet or mainnet](#deployment-to-a-testnet-or-mainnet)
-  - [Scripts](#scripts)
-  - [Estimate gas](#estimate-gas)
-- [Formatting](#formatting)
-- [Thank you!](#thank-you)
+## 🔧 Installation & Setup
 
-# Getting Started
+### 1️⃣ Install Foundry
 
-## Requirements
+If you haven't already installed Foundry, do so with:
 
-- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-  - You'll know you did it right if you can run `git --version` and you see a response like `git version x.x.x`
-- [foundry](https://getfoundry.sh/)
-  - You'll know you did it right if you can run `forge --version` and you see a response like `forge 0.2.0 (816e00b 2023-03-16T00:05:26.396218Z)`
-
-## Quickstart
-
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
 ```
-git clone https://github.com/Cyfrin/foundry-cross-chain-rebase-token-cu
-cd foundry-cross-chain-rebase-token-cu
+
+### 2️⃣ Clone the Repository & Build
+
+```bash
+git clone YOUR_REPO_URL
+cd YOUR_PROJECT_FOLDER
 forge build
 ```
 
-# Updates
+### 3️⃣ Deploy the Contract (Foundry Script)
 
-# Usage
-
-## Start a local node
-
-```
-make anvil
+```bash
+forge script script/DeployRebase.s.sol --broadcast --rpc-url YOUR_RPC_URL
 ```
 
-## Deploy
+### 4️⃣ Run Tests
 
-This will default to your local node. You need to have it running in another terminal in order for it to deploy.
-
-```
-make deploy
-```
-
-## Deploy - Other Network
-
-[See below](#deployment-to-a-testnet-or-mainnet)
-
-## Testing
-
-We talk about 4 test tiers on Updraft:
-
-1. Unit
-2. Integration
-3. Forked
-4. Staging
-
-In this repo we cover #1 and Fuzzing.
-
-```
+```bash
 forge test
 ```
 
-### Testing Coverage
+---
 
-```
-forge coverage
-```
+## 📜 Contract Overview
 
-and for coverage based testing:
+### **RebaseToken.sol** (Main Contract)
 
-```
-forge coverage --report debug
-```
+- **\_mint() & \_burn()** → Used for supply expansion/contraction.
+- **rebase(bool increase)** → Owner-only function to adjust supply.
+- **setRebaseInterval(uint256 interval)** → Adjust the interval between rebases.
 
-# Deployment to a testnet or mainnet
+### **DeployRebase.s.sol** (Foundry Script)
 
-1. Setup environment variables
+- Deploys `RebaseToken` on the blockchain using Foundry.
 
-You'll want to set your `SEPOLIA_RPC_URL` and `PRIVATE_KEY` as environment variables. You can add them to a `.env` file, similar to what you see in `.env.example`.
+### **RebaseToken.t.sol** (Test Suite)
 
-- `PRIVATE_KEY`: The private key of your account (like from [metamask](https://metamask.io/)). **NOTE:** FOR DEVELOPMENT, PLEASE USE A KEY THAT DOESN'T HAVE ANY REAL FUNDS ASSOCIATED WITH IT.
-  - You can [learn how to export it here](https://metamask.zendesk.com/hc/en-us/articles/360015289632-How-to-Export-an-Account-Private-Key).
-- `SEPOLIA_RPC_URL`: This is url of the sepolia testnet node you're working with. You can get setup with one for free from [Alchemy](https://alchemy.com/?a=673c802981)
+- **Tests for:**
+  - Initial supply
+  - Rebase increasing total supply
+  - Rebase decreasing total supply
 
-Optionally, add your `ETHERSCAN_API_KEY` if you want to verify your contract on [Etherscan](https://etherscan.io/).
+---
 
-1. Get testnet ETH
+## 🛠️ Next Steps
 
-Head over to [faucets.chain.link](https://faucets.chain.link/) and get some testnet ETH. You should see the ETH show up in your metamask.
+- Experiment with different **rebase percentages**
+- Try **automating rebase logic** based on external conditions
+- Deploy it on a **testnet** and interact with the contract
 
-2. Deploy
-
-```
-make deploy ARGS="--network sepolia"
-```
-
-## Scripts
-
-Instead of scripts, we can directly use the `cast` command to interact with the contract.
-
-For example, on Sepolia:
-
-1. Get some RebaseTokens
-
-```
-cast send <vault-contract-address> "deposit()" --value 0.1ether --rpc-url $SEPOLIA_RPC_URL --wallet
-```
-
-2. Redeem RebaseTokens for ETH
-
-```
-cast send <vault-contractaddress> "redeem(uint256)" 10000000000000000 --rpc-url $SEPOLIA_RPC_URL --wallet
-```
-
-## Estimate gas
-
-You can estimate how much gas things cost by running:
-
-```
-forge snapshot
-```
-
-And you'll see an output file called `.gas-snapshot`
-
-# Formatting
-
-To run code formatting:
-
-```
-forge fmt
-```
-
-# Thank you!
-
-## Project design and assumptions
-
-WHATEVER INTEREST THEY DEPOSIT WITH, THEY STICK WITH
-
-This project is a cross-chain rebase token that integrates Chainlink CCIP to enable users to bridge their tokens cross-chain
-
-### NOTES
-
-- assumed rewards are in contract
-- Protocol rewards early users and users which bridge to the L2
-  - The interest rate decreases discretely
-  - The interest rate when a user bridges is bridges with them and stays static. So, by bridging you get to keep your high interest rate.
-- You can only deposit and withdraw on the L1.
-- You cannot earn interest in the time while bridging.
-
-Don't forget to bridge back the amount of interest they accrued on the destination chain in that time
+🔥 **Now you're ready to deploy and test your own rebase token!** 🚀
